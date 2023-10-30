@@ -1,10 +1,9 @@
 import { reactive, ref } from 'vue'
 
 import {getDocs, addDoc, collection} from 'firebase/firestore'
-import { db  } from '@/firebase'
+import { db  } from '@/firebases'
 import {  } from 'firebase/storage'
 import {  } from 'firebase/auth'
-
 
 
 export function useGame() {
@@ -39,6 +38,8 @@ export function useGame() {
     }
   }
 
+
+  // await addDoc(collection(db, 'contents'), newContent.value)
   async function createGame() {
     loading.value.newGame = true
     try {

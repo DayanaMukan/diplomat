@@ -18,7 +18,7 @@
 <script setup>
 import { collection, getDocs, query, where, updateDoc, doc } from 'firebase/firestore';
 import { ref, onMounted } from 'vue';
-import { db } from '@/firebase';
+import { db } from '@/firebases';
 
 const gameId = 'gameId';
 

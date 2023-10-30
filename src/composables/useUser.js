@@ -6,7 +6,7 @@ import {
   doc,
   setDoc
 } from 'firebase/firestore'
-import { db /*storage */} from '@/firebase'
+import { db /*storage */} from '@/firebases'
 import { /*getStorage, uploadBytes, getDownloadURL*/ } from 'firebase/storage'
 import { ref, computed, watch } from 'vue'
 import { getAuth, signInWithPopup, GoogleAuthProvider } from 'firebase/auth'

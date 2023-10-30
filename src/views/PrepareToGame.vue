@@ -12,66 +12,77 @@
       </div>
     </div>
     <button @click="saveShips">Сохранить корабли</button>
+   
   </div>
 </template>
 
 <script>
 import { collection, addDoc } from 'firebase/firestore';
-import { db } from '@/firebase';
+import { db } from '@/firebases';
 
 export default {
   data() {
     return {
       gameBoard: Array.from({ length: 10 }, () => Array(10).fill(null)),
       ships: [],
+      savedShips: [],
+     
     };
   },
   methods: {
     toggleCell(rowIndex, cellIndex) {
       if (this.ships.length < 5) {
         if (this.gameBoard[rowIndex][cellIndex] === 'ship') {
-          this.gameBoard[rowIndex][cellIndex] = null; 
+          this.gameBoard[rowIndex][cellIndex] = null;
         } else {
-          this.gameBoard[rowIndex][cellIndex] = 'ship'; 
+          this.gameBoard[rowIndex][cellIndex] = 'ship';
         }
       }
     },
-  async saveShips() {
-  const shipsCollection = collection(db, 'ships');
-  const shipsData = [];
+    async saveShips() {
+      const shipsCollection = collection(db, 'ships');
+      const shipsData = [];
 
-  for (let rowIndex = 0; rowIndex < this.gameBoard.length; rowIndex++) {
-    for (let cellIndex = 0; cellIndex < this.gameBoard[rowIndex].length; cellIndex++) {
-      if (this.gameBoard[rowIndex][cellIndex] === 'ship') {
-        shipsData.push({ x: rowIndex, y: cellIndex });
+      for (let rowIndex = 0; rowIndex < this.gameBoard.length; rowIndex++) {
+        for (let cellIndex = 0; cellIndex < this.gameBoard[rowIndex].length; cellIndex++) {
+          if (this.gameBoard[rowIndex][cellIndex] === 'ship') {
+            shipsData.push({ x: rowIndex, y: cellIndex });
+          }
+        }
       }
-    }
-  }
-  try {
-    for (let index = 0; index < shipsData.length; index++) {
-      const shipData = {
-        id: index,
-        x: shipsData[index].x,
-        y: shipsData[index].y,
-      };
-      await addDoc(shipsCollection, shipData);
-    }
+      try {
+        for (let index = 0; index < shipsData.length; index++) {
+          const shipData = {
+            id: index,
+            x: shipsData[index].x,
+            y: shipsData[index].y,
+          };
+          await addDoc(shipsCollection, shipData);
+        }
 
-    this.$router.push({ name: 'StartGame' });
-  } catch (error) {
-    console.error('Ошибка при сохранении кораблей:', error);
-  }
-}
-}
-}
+        this.savedShips = [...this.savedShips, ...shipsData];
 
+        this.resetGameBoard();
+      } catch (error) {
+        console.error('Ошибка при сохранении кораблей:', error);
+      }
+    },
+    resetGameBoard() {
+      for (let rowIndex = 0; rowIndex < this.gameBoard.length; rowIndex++) {
+        for (let cellIndex = 0; cellIndex < this.gameBoard[rowIndex].length; cellIndex++) {
+          this.gameBoard[rowIndex][cellIndex] = null;
+        }
+      }
+    },
+  },
+};
 </script>
 
 <style scoped>
 .game-board {
   display: grid;
-  grid-template-columns: repeat(10, 40px); 
-  grid-template-rows: repeat(10, 40px); 
+  grid-template-columns: repeat(10, 40px);
+  grid-template-rows: repeat(10, 40px);
 }
 .cell {
   width: 40px;
@@ -80,9 +91,9 @@ export default {
   cursor: pointer;
 }
 .ship {
-  background-color: #007bff; 
+  background-color: #007bff;
 }
-.selected {
-  background-color: #007bff; 
+selected {
+  background-color: #007bff;
 }
 </style>

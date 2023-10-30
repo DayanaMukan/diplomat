@@ -1,5 +1,5 @@
 import {getDocs, addDoc, collection, doc, deleteDoc} from 'firebase/firestore'
-import { db,  } from '@/firebase'
+import { db,  } from '@/firebases'
 import {  } from 'firebase/storage'
 import { ref,  } from 'vue'
 import {  } from 'firebase/auth'
