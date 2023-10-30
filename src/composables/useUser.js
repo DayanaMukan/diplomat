@@ -34,10 +34,10 @@ const userToObject = computed(() => {
   return null
 })
 
+
 export const useUser = () => {
   const auth = getAuth()
 
-  // войти с помощью окна гугл
   function googleRegister() {
     const provider = new GoogleAuthProvider()
 
@@ -45,13 +45,10 @@ export const useUser = () => {
       .then(async (userCredential) => {
         user.value = userCredential.user
 
-        // проверка первый ли раз он зашел
         await addUserToMainDatabase()
 
-        // достаем данные если не первый раз
         await getFromMainDatabase()
 
-        // добавляем в локал сторадж
         addToLocalStorage()
       })
       .catch((error) => {
@@ -60,23 +57,31 @@ export const useUser = () => {
   }
 
   async function addUserToMainDatabase() {
-    loading.value.user = true
+    loading.value.user = true;
     try {
       if (userToObject.value) {
-        await getAllUsers()
+        await getAllUsers();
         if (!checkUserInDatabase()) {
-          await addDoc(collection(db, 'users'), userToObject.value)
+          const usersCollection = collection(db, 'users');
+
+          const userData = {
+            uid: userToObject.value.uid,
+            displayName: userToObject.value.displayName,
+            email: userToObject.value.email,
+
+          };
+  
+          await addDoc(usersCollection, userData);
         } else {
-          console.error('User already in database')
+          console.error('User already in database');
         }
       }
-      loading.value.user = false
+      loading.value.user = false;
     } catch (error) {
-      console.error(error)
+      console.error(error);
     }
   }
 
-  // получить всех юзеров
   async function getAllUsers() {
     loading.value.userList = true
     try {
@@ -90,18 +95,17 @@ export const useUser = () => {
     }
   }
 
-  // проверка есть ли юзер в базе данных
+ 
   function checkUserInDatabase() {
     return userList.value.some((item) => item.uid === userToObject.value?.uid)
   }
 
-  // получить данные из базы данных
+
   async function getFromMainDatabase() {
     await getAllUsers()
     user.value = userList.value.find((item) => item.uid === user.value?.uid)
   }
-
-  // обновить данные в базе данных
+ 
   async function updateUserInDatabase() {
     if (user.value) {
       try {
@@ -138,19 +142,16 @@ export const useUser = () => {
     localStorage.removeItem('user')
   }
 
-  // выйти из гугла
+
   function googleLogout() {
     auth.signOut()
     user.value = null
 
-    // удаляем из локал сторадж
     removeFromLocalStorage()
   }
 
-  // это надо не всем
-  // для постоянной связи сервиса с базой данных
-  watch(user.value, async (newValue) => {
-    if (newValue) {
+  watch(user, async (newValue) => {
+    if (newValue.value) {
       await updateUserInDatabase()
     }
   })
