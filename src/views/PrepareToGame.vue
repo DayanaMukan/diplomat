@@ -1,99 +1,113 @@
 <template>
   <div>
-    <div class="game-board">
-      <div v-for="(row, rowIndex) in gameBoard" :key="rowIndex" class="row">
+    <div class="p-grid game-board">
+      <div v-for="(row, rowIndex) in gameBoard" :key="rowIndex" class="p-col-1 row">
         <div
           v-for="(cell, cellIndex) in row"
           :key="cellIndex"
-          class="cell"
+          class="p-col-1 cell"
           @click="toggleCell(rowIndex, cellIndex)"
-          :class="{ 'ship': cell === 'ship', 'selected': cell === 'selected' }"
+          :class="{ 'p-button p-button-danger': cell === 'ship', 'p-button p-button-success': cell === 'selected' }"
         ></div>
       </div>
     </div>
-    <button @click="saveShips">Сохранить корабли</button>
-   
+    <Button ref="saveButton" @click="saveShips" :class="saveButtonClass" :disabled="ships.length !== 10">Сохранить корабли</Button>
+    <Button @click="createNewGame" class="p-button p-button-primary">Создать новую игру</Button>
+    <Button @click="loadExistingGame" class="p-button p-button-primary">Загрузить существующую игру</Button>
   </div>
 </template>
 
+
 <script>
-import { collection, addDoc } from 'firebase/firestore';
-import { db } from '@/firebases';
+import { ref, computed } from 'vue';
+import { useShips } from '@/composables/useShips';
+
 
 export default {
-  data() {
-    return {
-      gameBoard: Array.from({ length: 10 }, () => Array(10).fill(null)),
-      ships: [],
-      savedShips: [],
-     
-    };
-  },
-  methods: {
-    toggleCell(rowIndex, cellIndex) {
-      if (this.ships.length < 5) {
-        if (this.gameBoard[rowIndex][cellIndex] === 'ship') {
-          this.gameBoard[rowIndex][cellIndex] = null;
+  setup() {
+    
+    const { addShip } = useShips();
+
+    const gameBoard = ref(Array.from({ length: 10 }, () => Array(10).fill(null)));
+    const ships = ref([]);
+    const savedShips = ref([]);
+
+    const toggleCell = (rowIndex, cellIndex) => {
+      if (ships.value.length < 10) {
+        const cellValue = gameBoard.value[rowIndex][cellIndex];
+        if (cellValue === 'ship') {
+          gameBoard.value[rowIndex][cellIndex] = null;
+          ships.value = ships.value.filter(ship => !(ship.x === rowIndex && ship.y === cellIndex));
         } else {
-          this.gameBoard[rowIndex][cellIndex] = 'ship';
+          gameBoard.value[rowIndex][cellIndex] = 'ship';
+          ships.value.push({ x: rowIndex, y: cellIndex });
+        }
+     
+        if (ships.value.length === 10) {
+          const buttonElement = ref("saveButton");
+          buttonElement.value.$el.classList.add('p-button', 'p-button-success');
         }
       }
-    },
-    async saveShips() {
-      const shipsCollection = collection(db, 'ships');
-      const shipsData = [];
+    };
 
-      for (let rowIndex = 0; rowIndex < this.gameBoard.length; rowIndex++) {
-        for (let cellIndex = 0; cellIndex < this.gameBoard[rowIndex].length; cellIndex++) {
-          if (this.gameBoard[rowIndex][cellIndex] === 'ship') {
-            shipsData.push({ x: rowIndex, y: cellIndex });
-          }
-        }
-      }
-      try {
-        for (let index = 0; index < shipsData.length; index++) {
-          const shipData = {
-            id: index,
-            x: shipsData[index].x,
-            y: shipsData[index].y,
-          };
-          await addDoc(shipsCollection, shipData);
-        }
+    const resetGameBoard = () => {
+      gameBoard.value.forEach(row => {
+        row.fill(null);
+      });
+      ships.value = [];
+    };
 
-        this.savedShips = [...this.savedShips, ...shipsData];
+  
 
-        this.resetGameBoard();
-      } catch (error) {
-        console.error('Ошибка при сохранении кораблей:', error);
+    const saveButtonClass = computed(() => ({
+      'p-button': true,
+      'p-button-disabled': ships.value.length !== 10
+    }));
+
+    const saveShips = async () => {
+      if (ships.value.length === 10) {
+        ships.value.forEach(async (shipData) => {
+          await addShip(shipData);
+        });
+        savedShips.value = [...savedShips.value, ...ships.value];
+        resetGameBoard();
+
+        const buttonElement = ref("saveButton");
+        buttonElement.value.$el.classList.remove('p-button-success');
       }
-    },
-    resetGameBoard() {
-      for (let rowIndex = 0; rowIndex < this.gameBoard.length; rowIndex++) {
-        for (let cellIndex = 0; cellIndex < this.gameBoard[rowIndex].length; cellIndex++) {
-          this.gameBoard[rowIndex][cellIndex] = null;
-        }
-      }
-    },
+    };
+
+    return {
+      gameBoard,
+      ships,
+      savedShips,
+      toggleCell,
+      saveButtonClass,
+      saveShips,
+    
+    };
   },
 };
 </script>
 
 <style scoped>
-.game-board {
-  display: grid;
-  grid-template-columns: repeat(10, 40px);
-  grid-template-rows: repeat(10, 40px);
-}
-.cell {
-  width: 40px;
-  height: 40px;
-  border: 1px solid #000;
-  cursor: pointer;
-}
-.ship {
-  background-color: #007bff;
-}
-selected {
-  background-color: #007bff;
-}
+  .game-board {
+    display: grid;
+    grid-template-columns: repeat(10, 40px);
+    grid-template-rows: repeat(10, 40px);
+    gap: 1px;
+  }
+
+  .cell {
+    width: 40px;
+    height: 40px;
+    border: 1px solid #000;
+    cursor: pointer;
+  }
+
+  .p-button-danger {
+    background-image: url('../assets/ship.png');
+    background-size: cover; 
+    background-color: transparent; 
+  }
 </style>

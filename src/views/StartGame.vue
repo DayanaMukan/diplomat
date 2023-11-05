@@ -1,4 +1,5 @@
 <template>
+  <h1>jhjhb</h1>
   <button @click="startGame">Начать игру</button>
 </template>
 
@@ -21,3 +22,11 @@ const startGame = async () => {
   }
 };
 </script>
+<style scoped>
+ button{
+  color: aqua;
+ }
+ h1{
+  color: aquamarine;
+ }
+</style>

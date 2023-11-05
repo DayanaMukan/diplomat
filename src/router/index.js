@@ -23,7 +23,7 @@ const routes = [
     component: CurrentGame,
   },
   {
-    path: '/start',
+    path: '/src/views/StartGame.vue',
     name: 'StartGame',
     component: StartGame,
   },
