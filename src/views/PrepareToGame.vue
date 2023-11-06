@@ -13,15 +13,15 @@
     </div>
   </div>
   <div class="but_center">
-    <Button ref="saveButton" @click="saveShips" :class="saveButtonClass" :disabled="ships.length !== 10">Сохранить корабли</Button>
+    <Button ref="saveButton" @click="saveShips" :class="saveButtonClass" :disabled="ships.length !== 10">
+      {{ shipsSaved ? 'Корабли сохранились' : 'Сохранить корабли' }}
+    </Button>
   </div>
-  
 </template>
 
 <script>
 import { ref, computed } from 'vue';
 import { useShips } from '@/composables/useShips';
-
 
 export default {
   setup() {
@@ -29,6 +29,7 @@ export default {
     const gameBoard = ref(Array.from({ length: 10 }, () => Array(10).fill(null)));
     const ships = ref([]);
     const savedShips = ref([]);
+    const shipsSaved = ref(false);
 
     const toggleCell = (rowIndex, cellIndex) => {
       if (ships.value.length < 10) {
@@ -40,11 +41,6 @@ export default {
           gameBoard.value[rowIndex][cellIndex] = 'ship';
           ships.value.push({ x: rowIndex, y: cellIndex });
         }
-     
-        if (ships.value.length === 10) {
-          const buttonElement = ref("saveButton");
-          buttonElement.value.$el.classList.add('p-button', 'p-button-success');
-        }
       }
     };
 
@@ -53,9 +49,8 @@ export default {
         row.fill(null);
       });
       ships.value = [];
+      shipsSaved.value = false;
     };
-
-  
 
     const saveButtonClass = computed(() => ({
       'p-button': true,
@@ -69,9 +64,7 @@ export default {
         });
         savedShips.value = [...savedShips.value, ...ships.value];
         resetGameBoard();
-
-        const buttonElement = ref("saveButton");
-        buttonElement.value.$el.classList.remove('p-button-success');
+        shipsSaved.value = true; // Переменная shipsSaved устанавливается после нажатия на кнопку
       }
     };
 
@@ -79,45 +72,42 @@ export default {
       gameBoard,
       ships,
       savedShips,
+      shipsSaved,
       toggleCell,
       saveButtonClass,
       saveShips,
-    
     };
   },
 };
 </script>
 
 <style scoped>
-  .center{
-    display: flex;
-    justify-content: center; 
-    align-items: center; 
-    height: 100vh; 
-  }
-  .game-board {
-    display: grid;
-    grid-template-columns: repeat(10, 40px);
-    grid-template-rows: repeat(10, 40px);
-    gap: 1px;
-  
-  }
-
-  .cell {
-    width: 40px;
-    height: 40px;
-    border: 1px solid #000;
-    cursor: pointer;
-  }
-
-  .p-button-danger {
-    background-image: url('../assets/ship.png');
-    background-size: cover; 
-    background-color: transparent; 
-  }
-  .but_center{
-    display: flex;
-    justify-content: center;
-    padding-bottom: 100px;
-  }
+.center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+.game-board {
+  display: grid;
+  grid-template-columns: repeat(10, 40px);
+  grid-template-rows: repeat(10, 40px);
+  gap: 1px;
+}
+.cell {
+  width: 40px;
+  height: 40px;
+  border: 1px solid #000;
+  cursor: pointer;
+}
+.p-button-danger {
+  background-image: url('../assets/ship.png');
+  background-size: cover;
+  background-color: transparent;
+}
+.but_center {
+  display: flex;
+  justify-content: center;
+  padding-bottom: 100px;
+}
 </style>
