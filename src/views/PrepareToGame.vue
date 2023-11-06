@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="center">
     <div class="p-grid game-board">
       <div v-for="(row, rowIndex) in gameBoard" :key="rowIndex" class="p-col-1 row">
         <div
@@ -11,12 +11,12 @@
         ></div>
       </div>
     </div>
-    <Button ref="saveButton" @click="saveShips" :class="saveButtonClass" :disabled="ships.length !== 10">Сохранить корабли</Button>
-    <Button @click="createNewGame" class="p-button p-button-primary">Создать новую игру</Button>
-    <Button @click="loadExistingGame" class="p-button p-button-primary">Загрузить существующую игру</Button>
   </div>
+  <div class="but_center">
+    <Button ref="saveButton" @click="saveShips" :class="saveButtonClass" :disabled="ships.length !== 10">Сохранить корабли</Button>
+  </div>
+  
 </template>
-
 
 <script>
 import { ref, computed } from 'vue';
@@ -25,9 +25,7 @@ import { useShips } from '@/composables/useShips';
 
 export default {
   setup() {
-    
     const { addShip } = useShips();
-
     const gameBoard = ref(Array.from({ length: 10 }, () => Array(10).fill(null)));
     const ships = ref([]);
     const savedShips = ref([]);
@@ -91,11 +89,18 @@ export default {
 </script>
 
 <style scoped>
+  .center{
+    display: flex;
+    justify-content: center; 
+    align-items: center; 
+    height: 100vh; 
+  }
   .game-board {
     display: grid;
     grid-template-columns: repeat(10, 40px);
     grid-template-rows: repeat(10, 40px);
     gap: 1px;
+  
   }
 
   .cell {
@@ -109,5 +114,10 @@ export default {
     background-image: url('../assets/ship.png');
     background-size: cover; 
     background-color: transparent; 
+  }
+  .but_center{
+    display: flex;
+    justify-content: center;
+    padding-bottom: 100px;
   }
 </style>

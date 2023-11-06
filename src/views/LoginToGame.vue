@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <img src="../assets/ship.png" alt="Корабль" class="ship-animation" />
+  <div class="center">
+    <img src="../assets/ship.png" alt="Корабль" class="ship-animation" v-if="!isLoggedIn"/>
     <button @click="loginWithGoogle" v-if="!isLoggedIn" class="p-button">Вход</button>
     <div v-else>
       <PrepareToGame />
@@ -42,12 +42,17 @@ export default {
 };
 </script>
 <style scoped>
+  .center{
+    display: flex;
+    justify-content: center; 
+    align-items: center; 
+    height: 100vh; 
+  }
   button {
     width: 200px;
     height: 50px;
     font-weight: 500;
     margin-top: 600px;
-    margin-left: 350px;
     position: relative;
   }
 

@@ -23,8 +23,6 @@ const firebaseConfig = {
 app.use(PrimeVue);
 app.use(router);
 
-
-
 initializeApp(firebaseConfig);
 
 app.mount('#app');

@@ -13,7 +13,6 @@ const {getUserFromLocalStorage } = useUser()
 
 <template>
   <RouterView />
-  
 </template>
 
 <style>
